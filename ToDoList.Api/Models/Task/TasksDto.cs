@@ -1,8 +1,8 @@
 ﻿using ToDoList.Api.Data.Entities;
 
-namespace ToDoList.Api.Models
+namespace ToDoList.Api.Models.Task
 {
-    public class TasksDto   
+    public class TasksDto
     {
         public string Name { get; set; }
         public Status TaskStatus { get; set; }

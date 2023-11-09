@@ -9,7 +9,7 @@ using ToDoList.Api.Repositories;
 namespace ToDoList.Api.Controllers
 {
     [ApiController]
-    [Route("api/people/{peopleId}/projects")]
+    [Route("api/people/{peopleId}/projects/[action]")]
     public class ProjectController : ControllerBase
     {
         private readonly ILogger<ProjectController> _logger;
@@ -164,7 +164,43 @@ namespace ToDoList.Api.Controllers
 
         #region Delete
 
+        [HttpDelete("{projectId}")]
+        public async Task<ActionResult> HardDeleteProject(int peopleId, int projectId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            var project = await _projectReposit.GetProjectAsync(peopleId, projectId);
+            if (project == null)
+                return NotFound(ModelState);
+
+            _projectReposit.DeleteProjectAsync(project);
+            if (await _projectReposit.SaveChangesAsync())
+                return NoContent();
+
+            return BadRequest();
+        }
+
+        [HttpPut("{projectId}")]
+        public async Task<ActionResult> SoftDeleteProject(ProjectForDeleteDto model, int peopleId, int projectId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var project = await _projectReposit.GetProjectAsync(peopleId, projectId);
+            if (project == null)
+                return NotFound(ModelState);
+
+            project.ModificationDate = DateTime.Now;
+
+            _mapper.Map(model, project);
+            if (await _projectReposit.SaveChangesAsync())
+            {
+                return NoContent();
+            }
+            _logger.LogInformation($"Error When Deleting One project: {project}");
+            return BadRequest(ModelState);
+        }
 
         #endregion
 

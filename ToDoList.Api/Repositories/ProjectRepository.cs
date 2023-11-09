@@ -22,9 +22,9 @@ namespace ToDoList.Api.Repositories
             }
         }
 
-        public Task DeleteProjectAsync(int peopleId, int projectId)
+        public void DeleteProjectAsync(Projects projects)
         {
-            throw new NotImplementedException();
+            _context.Tbl_Project.Remove(projects);
         }
 
         public Task DeleteProjectsAsync(int peopleId)

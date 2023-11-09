@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Azure;
 using ToDoList.Api.Data.Entities;
-using ToDoList.Api.Models;
 using ToDoList.Api.Models.People;
 using ToDoList.Api.Models.Project;
+using ToDoList.Api.Models.Task;
 
 namespace ToDoList.Api.Profiler
 {
@@ -48,11 +48,13 @@ namespace ToDoList.Api.Profiler
             CreateMap<Projects, ProjectForCreationDto>();
             CreateMap<Projects, ProjectsDto>();
 
-            CreateMap<ProjectsDto,ProjectForCreationDto>();
+            CreateMap<ProjectsDto, ProjectForCreationDto>();
 
 
             CreateMap<ProjectForUpdateDto, Projects>();
             CreateMap<Projects, ProjectForUpdateDto>();
+
+            CreateMap<ProjectForDeleteDto, Projects>();
             #endregion
 
 

@@ -1,4 +1,5 @@
 ﻿using ToDoList.Api.Data.Entities;
+using ToDoList.Api.Models.Task;
 
 namespace ToDoList.Api.Models.People
 {
