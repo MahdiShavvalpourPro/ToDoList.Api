@@ -21,8 +21,8 @@ namespace ToDoList.Api.Models.People
         public string? Email { get; set; } = null;
 
 
-        public string PersianDate { get; set; } = DateTime.Now.ToShortPersianDateString();
-        public DateTime CreationDate { get; set; } = DateTime.Now;
-        public bool IsRemove { get; set; } = false;
+        //public string PersianDate { get; set; } = DateTime.Now.ToShortPersianDateString();
+        //public DateTime CreationDate { get; set; } = DateTime.Now;
+        //public bool IsRemove { get; set; } = false;
     }
 }
