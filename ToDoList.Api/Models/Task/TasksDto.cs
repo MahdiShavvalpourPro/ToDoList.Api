@@ -11,5 +11,6 @@ namespace ToDoList.Api.Models.Task
         public PriorityLevel PriorityLevel { get; set; }
         public string? Description { get; set; } = null;
 
+
     }
 }

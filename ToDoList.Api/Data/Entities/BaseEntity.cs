@@ -7,7 +7,7 @@ namespace ToDoList.Api.Data.Entities
     {
         public BaseEntity()
         {
-            CreationDate = DateTime.Now;
+            CreationDate = DateTime.Parse(DateTime.Now.ToString("G"));
             PersianDate = DateTime.Now.ToShortPersianDateString();
         }
 

@@ -8,15 +8,17 @@ namespace ToDoList.Api.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ProjectRepository> _logger;
+        private readonly IPeopleRepository _peopleRepository;
 
-        public ProjectRepository(ApplicationDbContext context, ILogger<ProjectRepository> logger)
+        public ProjectRepository(ApplicationDbContext context, ILogger<ProjectRepository> logger, IPeopleRepository projectRepository)
         {
             _context = context;
             _logger = logger;
+            _peopleRepository = projectRepository;
         }
         public async Task AddProjectAsync(int peopleId, Projects project)
         {
-            if (await PeopleExists(peopleId))
+            if (await _peopleRepository.PeopleExistsAsync(peopleId))
             {
                 await _context.AddAsync(project);
             }
@@ -39,14 +41,26 @@ namespace ToDoList.Api.Repositories
                 .FirstOrDefaultAsync(x => x.OwnerId == peopleId && x.Id == projectId);
         }
 
+        public async Task<Projects?> GetProjectAsync(int projectId)
+        {
+            return await _context.Tbl_Project.
+                FirstOrDefaultAsync(c => c.Id == projectId);
+        }
+
         public async Task<IEnumerable<Projects?>> GetProjectsAsync(int peopleId)
         {
             return await _context.Tbl_Project.Where(x => x.OwnerId == peopleId).ToListAsync();
         }
 
-        public async Task<bool> PeopleExists(int peopleId)
+        public async Task<bool> ProjectExistsAsync(int peopleId, int projectId)
         {
-            return await _context.Tbl_People.AnyAsync(p => p.Id == peopleId);
+            if (await _peopleRepository.PeopleExistsAsync(peopleId))
+            {
+                return await _context
+                    .Tbl_Project
+                    .AnyAsync(x => x.Id == projectId);
+            }
+            return false;
         }
 
         public async Task<bool> SaveChangesAsync()
