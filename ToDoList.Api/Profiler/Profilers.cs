@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Azure;
 using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.People;
 using ToDoList.Api.Models.Project;
@@ -60,7 +59,14 @@ namespace ToDoList.Api.Profiler
             #region Tasks
 
             CreateMap<TaskForCreationDto, Tasks>();
-            CreateMap<Tasks, TasksDto>();
+            CreateMap<Tasks, TasksDto>()
+                .ForMember(dest=>dest.TaskName,opt=>opt.MapFrom(src=>src.Name))
+                .ForMember(dest=>dest.TaskStatus,opt=>opt.MapFrom(src=>src.TaskStatus))
+                .ForMember(dest=>dest.StartTaskTime,opt=>opt.MapFrom(src=>src.StartTime))
+                .ForMember(dest=>dest.EndTaskTime,opt=>opt.MapFrom(src=>src.EndTime))
+                .ForMember(dest=>dest.PriorityLevelTask,opt=>opt.MapFrom(src=>src.PriorityLevel))
+                .ForMember(dest=>dest.TaskDescription,opt=>opt.MapFrom(src=>src.Description))
+                ;
 
             #endregion
 

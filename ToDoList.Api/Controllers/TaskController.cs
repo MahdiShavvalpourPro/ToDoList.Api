@@ -89,7 +89,7 @@ namespace ToDoList.Api.Controllers
                 return BadRequest($"The user with ID {peopleId} does not have a project");
             }
 
-            var tasks = await _taskRepository.GetAllTasksAsync(peopleId, projectId);
+            var tasks = await _taskRepository.GetAllTasksAsync(projectId);
             return Ok(
                 _mapper.Map<IEnumerable<TasksDto>>(tasks)
                 );

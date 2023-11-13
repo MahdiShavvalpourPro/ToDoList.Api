@@ -22,7 +22,7 @@ namespace ToDoList.Api.Repositories
             _context = context;
             _projectRepository = projectRepository;
             _logger = logger;
-            _userTasksRepository= userTasksRepository;
+            _userTasksRepository = userTasksRepository;
         }
         public Task DeleteTaskAsync(Tasks tasks)
         {
@@ -32,9 +32,10 @@ namespace ToDoList.Api.Repositories
         public async Task<IEnumerable<Tasks>> GetAllTasksAsync(int projectId)
         {
             return await _context.Tbl_Task
-                .Include(t => t.UserTasks)
+                .Include(t => t.Project)
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
+
         }
 
         public Task<Tasks> GetTaskAsync(int peopleId, int projectId, int taskId)

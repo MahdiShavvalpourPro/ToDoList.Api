@@ -54,12 +54,12 @@ namespace ToDoList.Api.Repositories
 
         public async Task<bool> ProjectExistsAsync(int peopleId, int projectId)
         {
-            if (await _peopleRepository.PeopleExistsAsync(peopleId))
-            {
-                return await _context
-                    .Tbl_Project
-                    .AnyAsync(x => x.Id == projectId);
-            }
+            var project = await _context
+            .Tbl_Project
+            .FirstOrDefaultAsync(x => x.Id == projectId && x.OwnerId == peopleId);
+            if (project != null)
+                return true;
+
             return false;
         }
 

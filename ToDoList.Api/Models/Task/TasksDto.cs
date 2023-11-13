@@ -4,12 +4,12 @@ namespace ToDoList.Api.Models.Task
 {
     public class TasksDto
     {
-        public string Name { get; set; }
+        public string TaskName { get; set; }
         public Status TaskStatus { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public PriorityLevel PriorityLevel { get; set; }
-        public string? Description { get; set; } = null;
+        public DateTime StartTaskTime { get; set; }
+        public DateTime EndTaskTime { get; set; }
+        public PriorityLevel PriorityLevelTask { get; set; }
+        public string? TaskDescription { get; set; } = null;
 
 
     }
