@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage;
 using ToDoList.Api.Data;
 using ToDoList.Api.Data.Entities;
+using ToDoList.Api.Models.Infos;
 using ToDoList.Api.Models.Project;
 using ToDoList.Api.Models.Task;
 using ToDoList.Api.Repositories;
@@ -75,7 +78,7 @@ namespace ToDoList.Api.Controllers
         #region Get Data
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TasksDto>>> GetAllTasks(int peopleId, int projectId)
+        public async Task<ActionResult<IEnumerable<TaskInfos>>> GetAllTasks(int peopleId, int projectId)
         {
             if (!await _peopleRepository.PeopleExistsAsync(peopleId))
             {
@@ -89,10 +92,98 @@ namespace ToDoList.Api.Controllers
                 return BadRequest($"The user with ID {peopleId} does not have a project");
             }
 
-            var tasks = await _taskRepository.GetAllTasksAsync(projectId);
+            var tasksList = await _taskRepository.GetAllTaskInfosAsync(peopleId, projectId);
             return Ok(
-                _mapper.Map<IEnumerable<TasksDto>>(tasks)
+                //k_mapper.Map<IEnumerable<TasksDto>>(tasks)
+                tasksList
                 );
+        }
+
+        [HttpGet("{taskId}")]
+        public async Task<ActionResult<TaskInfos>> GetTask(int peopleId, int projectId, int taskId)
+        {
+            if (!await _peopleRepository.PeopleExistsAsync(peopleId))
+            {
+                _logger.LogInformation($"The user with ID {peopleId} not found");
+                return BadRequest($"The user with ID {peopleId} not found");
+            }
+
+            if (!await _projectRepository.ProjectExistsAsync(peopleId, projectId))
+            {
+                _logger.LogInformation($"The user with ID {peopleId} does not have a project");
+                return BadRequest($"The user with ID {peopleId} does not have a project");
+            }
+
+            var taskInfos = await _taskRepository.GetTaskInfoAsync(peopleId, projectId, taskId);
+            return Ok(
+                //_mapper.Map<IEnumerable<TasksDto>>(tasks)
+                taskInfos
+                );
+        }
+
+        #endregion
+
+        #region Delete
+
+        [HttpDelete]
+        public async Task<ActionResult> HardDelete(int peopleId, int projectId, int taskId)
+        {
+            if (!await _taskRepository.TaskExistsAsync(peopleId, projectId, taskId))
+                return NotFound();
+
+            var task = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
+
+            await _taskRepository.DeleteTaskAsync(task);
+            if (await _taskRepository.SaveChangesAsync())
+            {
+                return Ok();
+            }
+            _logger.LogInformation($"{nameof(HardDelete)}: {task}");
+            return BadRequest();
+        }
+
+        [HttpPatch("{taskId}")]
+        public async Task<ActionResult> SoftDelete
+            (
+            JsonPatchDocument<TaskForDeleteDto> document,
+            int peopleId,
+            int projectId,
+            int taskId)
+        {
+            if (!await _peopleRepository.PeopleExistsAsync(peopleId))
+            {
+                _logger.LogInformation($"people With Id {peopleId} Not Found");
+                return NotFound();
+            }
+
+            if (!await _projectRepository.ProjectExistsAsync(peopleId, projectId))
+            {
+                _logger.LogInformation($"people with project Id {projectId} not found");
+                return NotFound();
+            }
+
+            if (!await _taskRepository.TaskExistsAsync(peopleId, projectId, taskId))
+            {
+                _logger.LogInformation($"Task With Id {taskId} Not Found");
+                return NotFound();
+            }
+
+            var taskToPatch=_mapper.Map<TaskForDeleteDto>(document);
+            document.ApplyTo(taskToPatch,ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!TryValidateModel(taskToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+
+            _mapper.Map<TasksDto>(document);
+            await _taskRepository.SaveChangesAsync();
+            return Ok();
+
+
         }
 
         #endregion
