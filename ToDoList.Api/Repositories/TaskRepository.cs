@@ -66,9 +66,11 @@ namespace ToDoList.Api.Repositories
                      ProjectName = x.Project.Name,
                      ProjectStatus = x.Project.ProjectStatus,
                      ProjectPriorityLevel = x.Project.PriorityLevel,
+                     Compelation = x.Project.Completion,
                      TaskName = x.Task.Name,
                      TaskStatus = x.Task.TaskStatus,
-                     TaskPriorityLevel = x.Task.PriorityLevel
+                     TaskPriorityLevel = x.Task.PriorityLevel,
+                     IsExpired = x.Task.Expireded
                  })
                  .ToListAsync();
         }
