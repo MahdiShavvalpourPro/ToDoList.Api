@@ -26,17 +26,15 @@ namespace ToDoList.Api.Repositories
             _logger = logger;
             _userTasksRepository = userTasksRepository;
         }
-        public async Task<bool> DeleteTaskAsync(Tasks tasks)
+        public void DeleteTaskAsync(Tasks tasks)
         {
             try
             {
                 _context.Remove(tasks);
-                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogInformation(ex.ToString());
-                return false;
             }
         }
 
@@ -93,6 +91,7 @@ namespace ToDoList.Api.Repositories
                    taskProjectUserTask => taskProjectUserTask.UserTask.UserId,
                    people => people.Id,
                    (taskProjectUserTask, people) => new { taskProjectUserTask.Task, taskProjectUserTask.Project, taskProjectUserTask.UserTask, People = people })
+               .AsNoTracking()
                .FirstOrDefaultAsync(joined => joined.People.Id == peopleId && joined.Project.Id == projectId && joined.Task.Id == taskId);
 
             return new Tasks()
@@ -101,7 +100,7 @@ namespace ToDoList.Api.Repositories
                 Name = taskInfo.Task.Name,
                 TaskStatus = taskInfo.Task.TaskStatus,
                 StartTime = taskInfo.Task.StartTime,
-                EndTime = taskInfo.Task.EndTime,
+                ExpiteTime = taskInfo.Task.ExpiteTime,
                 PriorityLevel = taskInfo.Task.PriorityLevel,
                 Description = taskInfo.Task.Description,
                 ProjectId = taskInfo.Task.ProjectId,
@@ -211,5 +210,6 @@ namespace ToDoList.Api.Repositories
                 return false;
             return true;
         }
+
     }
 }

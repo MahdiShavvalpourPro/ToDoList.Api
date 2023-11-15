@@ -11,7 +11,7 @@ namespace ToDoList.Api.Repositories
 
         public Task<bool> InsertTaskAsync(int peopleId, int projectId, Tasks task);
         public Task<bool> TaskExistsAsync(int peopleId, int projectId, int taskId);
-        public Task<bool> DeleteTaskAsync(Tasks tasks);
+        public void DeleteTaskAsync(Tasks tasks);
 
 
         public Task<bool> SaveChangesAsync();

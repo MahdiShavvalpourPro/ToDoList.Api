@@ -63,10 +63,11 @@ namespace ToDoList.Api.Profiler
                 .ForMember(dest=>dest.TaskName,opt=>opt.MapFrom(src=>src.Name))
                 .ForMember(dest=>dest.TaskStatus,opt=>opt.MapFrom(src=>src.TaskStatus))
                 .ForMember(dest=>dest.StartTaskTime,opt=>opt.MapFrom(src=>src.StartTime))
-                .ForMember(dest=>dest.EndTaskTime,opt=>opt.MapFrom(src=>src.EndTime))
+                .ForMember(dest=>dest.EndTaskTime,opt=>opt.MapFrom(src=>src.ExpiteTime))
                 .ForMember(dest=>dest.PriorityLevelTask,opt=>opt.MapFrom(src=>src.PriorityLevel))
                 .ForMember(dest=>dest.TaskDescription,opt=>opt.MapFrom(src=>src.Description))
                 ;
+
 
 
             #endregion

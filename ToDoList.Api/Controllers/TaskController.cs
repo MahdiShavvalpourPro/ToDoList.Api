@@ -133,7 +133,7 @@ namespace ToDoList.Api.Controllers
 
             var task = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
 
-            await _taskRepository.DeleteTaskAsync(task);
+            _taskRepository.DeleteTaskAsync(task);
             if (await _taskRepository.SaveChangesAsync())
             {
                 return Ok();
@@ -168,8 +168,8 @@ namespace ToDoList.Api.Controllers
                 return NotFound();
             }
 
-            var taskToPatch=_mapper.Map<TaskForDeleteDto>(document);
-            document.ApplyTo(taskToPatch,ModelState);
+            var taskToPatch = _mapper.Map<TaskForDeleteDto>(document);
+            document.ApplyTo(taskToPatch, ModelState);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

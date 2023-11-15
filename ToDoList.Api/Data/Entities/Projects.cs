@@ -6,10 +6,11 @@
         public Status ProjectStatus { get; set; }
         public PriorityLevel PriorityLevel { get; set; }
         public string? Descrption { get; set; }
+        public bool Completion { get; set; }
 
 
         //Relations
-        public People Owner{ get; set; }
+        public People Owner { get; set; }
         public int OwnerId { get; set; }
         public ICollection<Tasks> TasksList { get; set; }
 
