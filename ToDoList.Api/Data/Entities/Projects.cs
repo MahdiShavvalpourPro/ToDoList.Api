@@ -6,7 +6,6 @@
         public Status ProjectStatus { get; set; }
         public PriorityLevel PriorityLevel { get; set; }
         public string? Descrption { get; set; }
-        public bool Completion { get; set; }
 
 
         //Relations

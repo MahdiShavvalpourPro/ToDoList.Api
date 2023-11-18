@@ -13,7 +13,7 @@ using ToDoList.Api.Repositories;
 namespace ToDoList.Api.Controllers
 {
     [ApiController]
-    [Route("api/people/{peopleId}/projects/{projectId}/tasks")]
+    [Route("api/people/{peopleId}/projects/{projectId}/[action]/tasks")]
     public class TaskController : ControllerBase
     {
         private readonly ITaskRepository _taskRepository;
@@ -184,6 +184,55 @@ namespace ToDoList.Api.Controllers
             return Ok();
 
 
+        }
+
+        #endregion
+
+        #region Update Tasks
+
+        [HttpPatch("taskId")]
+        public async Task<ActionResult> UpdateTask(
+            int peopleId,
+            int projectId,
+            int taskId,
+            Microsoft.AspNetCore.JsonPatch.JsonPatchDocument<TaskForUpdateDto> document
+            )
+        {
+            #region validation
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            if (!await _peopleRepository.PeopleExistsAsync(peopleId))
+                return NotFound(ModelState);
+
+            if (await _projectRepository.ProjectExistsAsync(projectId, taskId))
+                return NotFound(ModelState);
+
+            var task =await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
+            if (task == null)
+                return NotFound(ModelState);
+
+            #endregion
+            var taskToPatch = _mapper.Map<TaskForUpdateDto>(task);
+            document.ApplyTo(taskToPatch, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!TryValidateModel(taskToPatch))
+            {
+                return BadRequest(ModelState);
+            }
+            task.ModificationDate = DateTime.Now;
+            _mapper.Map(taskToPatch,task);
+            if(await _taskRepository.SaveChangesAsync())
+            {
+                var reMap=_mapper.Map<TaskForUpdateDto>(task);
+                return Ok(reMap);
+            }
+            _logger.LogInformation($"Error When Updating Task: {task}");
+            return BadRequest(ModelState);
         }
 
         #endregion

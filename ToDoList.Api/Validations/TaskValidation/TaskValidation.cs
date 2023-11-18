@@ -13,19 +13,21 @@ namespace ToDoList.Api.Validations.TaskValidation
                 .MaximumLength(300);
 
             RuleFor(x => x.TaskStatus)
-                .NotNull()
-                .WithMessage("Task Status Is Required");
-
-            RuleFor(x => x.StartTime)
-                .NotEmpty()
-                .LessThan(x => x.ExpireDate)
-                .WithMessage("Start Time Should Be Less Than Edn Time");
+                .IsInEnum();
 
             RuleFor(x => x.PriorityLevel)
-                .NotEmpty();
+                .IsInEnum();
 
+            //RuleFor(x => x.StartTime)
+            //   .NotEmpty();
 
+            //RuleFor(x => x.ExpireDate)
+            //    .NotEmpty()
+            //    .GreaterThan(x => x.StartTime);
 
+            RuleFor(task => task.Description)
+               .MaximumLength(300)
+               .WithMessage("Description Shuold Be Less Than 300 Character");
         }
     }
 }

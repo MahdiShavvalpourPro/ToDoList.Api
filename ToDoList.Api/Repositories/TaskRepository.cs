@@ -66,11 +66,11 @@ namespace ToDoList.Api.Repositories
                      ProjectName = x.Project.Name,
                      ProjectStatus = x.Project.ProjectStatus,
                      ProjectPriorityLevel = x.Project.PriorityLevel,
-                     Compelation = x.Project.Completion,
+                     //Compelation = x.Project.Completion,
                      TaskName = x.Task.Name,
                      TaskStatus = x.Task.TaskStatus,
                      TaskPriorityLevel = x.Task.PriorityLevel,
-                     IsExpired = x.Task.Expireded
+                     //IsExpired = x.Task.Expireded
                  })
                  .ToListAsync();
         }
@@ -109,7 +109,8 @@ namespace ToDoList.Api.Repositories
                 CreationDate = taskInfo.Task.CreationDate,
                 ModificationDate = taskInfo.Task.ModificationDate,
                 PersianDate = taskInfo.Task.PersianDate,
-                IsRemove = taskInfo.Task.IsRemove
+                IsRemove = taskInfo.Task.IsRemove,
+                //Expireded = taskInfo.Task.Expireded,
             };
         }
 
