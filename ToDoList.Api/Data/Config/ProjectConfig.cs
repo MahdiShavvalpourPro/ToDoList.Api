@@ -14,9 +14,7 @@ namespace ToDoList.Api.Data.Config
             builder.Property(p => p.PriorityLevel).IsRequired();
             builder.Property(p => p.Descrption).HasMaxLength(400);
 
-            builder.Property(x => x.CreationDate).HasMaxLength(19);
-            builder.Property(x => x.ModificationDate).HasMaxLength(19);
-            builder.Property(x => x.PersianDate).HasMaxLength(10);
+
 
 
             builder.HasKey(p => p.Id);

@@ -31,8 +31,8 @@ builder.Services.AddControllers()
 
 
 builder.Services.AddFluentValidationAutoValidation();
-//builder.Services.AddScoped<IValidator<TaskForCreationDto>, TaskValidation>();
-//builder.Services.AddScoped<IValidator<TaskForUpdateDto>, TaskForUpdateDtoValidation>();
+builder.Services.AddScoped<IValidator<TaskForCreationDto>, TaskValidation>();
+builder.Services.AddScoped<IValidator<TaskForUpdateDto>, TaskForUpdateDtoValidation>();
 
 #endregion
 

@@ -5,7 +5,7 @@
         public string Name { get; set; }
         public Status TaskStatus { get; set; }
         public DateTime? StartTime { get; set; } = null;
-        public DateTime? ExpiteTime { get; set; } = null;
+        public DateTime? ExpireTime { get; set; } = null;
         public PriorityLevel PriorityLevel { get; set; }
         public string? Description { get; set; }
 

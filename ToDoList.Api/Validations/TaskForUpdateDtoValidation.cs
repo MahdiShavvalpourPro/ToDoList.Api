@@ -27,7 +27,7 @@ namespace ToDoList.Api.Validations
                 .NotEmpty()
                 .WithMessage("the start time task should be less than Date Time Of Expired");
 
-            RuleFor(task => task.ExpireDate)
+            RuleFor(task => task.ExpireTime)
                 .NotEmpty()
                 .WithMessage("The expiration date should not be same as start date");
 

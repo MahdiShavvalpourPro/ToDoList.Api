@@ -15,6 +15,8 @@ namespace ToDoList.Api.Models.Infos
         public bool Compelation { get; set; }
 
         public string TaskName { get; set; }
+        public DateTime? StartTime { get; set; } = null;
+        public DateTime? ExpireTime { get; set; } = null;
         public Status TaskStatus { get; set; }
         public PriorityLevel TaskPriorityLevel { get; set; }
         public bool IsExpired { get; set; }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using ToDoList.Api.Data;
 using ToDoList.Api.Data.Entities;
@@ -10,19 +12,16 @@ namespace ToDoList.Api.Repositories
     public class TaskRepository : ITaskRepository
     {
         private readonly ApplicationDbContext _context;
-        private readonly IProjectRepository _projectRepository;
         private readonly ILogger<TaskRepository> _logger;
         private readonly IUserTasksRepository _userTasksRepository;
 
         public TaskRepository(
             ApplicationDbContext context,
-            IProjectRepository projectRepository,
             ILogger<TaskRepository> logger,
             IUserTasksRepository userTasksRepository
             )
         {
             _context = context;
-            _projectRepository = projectRepository;
             _logger = logger;
             _userTasksRepository = userTasksRepository;
         }
@@ -66,11 +65,11 @@ namespace ToDoList.Api.Repositories
                      ProjectName = x.Project.Name,
                      ProjectStatus = x.Project.ProjectStatus,
                      ProjectPriorityLevel = x.Project.PriorityLevel,
-                     //Compelation = x.Project.Completion,
                      TaskName = x.Task.Name,
                      TaskStatus = x.Task.TaskStatus,
                      TaskPriorityLevel = x.Task.PriorityLevel,
-                     //IsExpired = x.Task.Expireded
+                     StartTime = x.Task.StartTime,
+                     ExpireTime = x.Task.ExpireTime
                  })
                  .ToListAsync();
         }
@@ -78,40 +77,14 @@ namespace ToDoList.Api.Repositories
         public async Task<Tasks> GetTaskAsync(int peopleId, int projectId, int taskId)
         {
             var taskInfo = await _context.Tbl_Task
-                .Join(
-                   _context.Tbl_Project,
-                   task => task.ProjectId,
-                   project => project.Id,
-                   (task, project) => new { Task = task, Project = project })
-               .Join(
-                   _context.Tbl_UserTask,
-                   taskProject => taskProject.Task.Id,
-                   userTask => userTask.TaskId,
-                   (taskProject, userTask) => new { taskProject.Task, taskProject.Project, UserTask = userTask })
-               .Join(
-                   _context.Tbl_People,
-                   taskProjectUserTask => taskProjectUserTask.UserTask.UserId,
-                   people => people.Id,
-                   (taskProjectUserTask, people) => new { taskProjectUserTask.Task, taskProjectUserTask.Project, taskProjectUserTask.UserTask, People = people })
-               .AsNoTracking()
-               .FirstOrDefaultAsync(joined => joined.People.Id == peopleId && joined.Project.Id == projectId && joined.Task.Id == taskId);
+              .Include(u => u.UserTasks)
+              .Include(p => p.Project)
+              .ThenInclude(o => o.Owner)
+              .Where(o => o.Project.OwnerId == peopleId)
+              .Where(p => p.ProjectId == projectId)
+              .FirstOrDefaultAsync(u => u.Id == taskId);
 
-            return new Tasks()
-            {
-                Id = taskInfo!.Task.Id,
-                Name = taskInfo.Task.Name,
-                TaskStatus = taskInfo.Task.TaskStatus,
-                StartTime = taskInfo.Task.StartTime,
-                ExpiteTime = taskInfo.Task.ExpiteTime,
-                PriorityLevel = taskInfo.Task.PriorityLevel,
-                Description = taskInfo.Task.Description,
-                ProjectId = taskInfo.Task.ProjectId,
-                CreationDate = taskInfo.Task.CreationDate,
-                ModificationDate = taskInfo.Task.ModificationDate,
-                PersianDate = taskInfo.Task.PersianDate,
-                IsRemove = taskInfo.Task.IsRemove,
-                //Expireded = taskInfo.Task.Expireded,
-            };
+            return taskInfo;
         }
 
         public async Task<TaskInfos> GetTaskInfoAsync(int peopleId, int projectId, int taskId)
@@ -145,7 +118,9 @@ namespace ToDoList.Api.Repositories
                 ProjectPriorityLevel = taskInfo.Project.PriorityLevel,
                 TaskName = taskInfo.Task.Name,
                 TaskStatus = taskInfo.Task.TaskStatus,
-                TaskPriorityLevel = taskInfo.Task.PriorityLevel
+                TaskPriorityLevel = taskInfo.Task.PriorityLevel,
+                ExpireTime = taskInfo.Task.ExpireTime,
+                StartTime = taskInfo.Task.StartTime
             };
         }
 
@@ -187,32 +162,43 @@ namespace ToDoList.Api.Repositories
 
         public async Task<bool> SaveChangesAsync()
         {
-            return await _context.SaveChangesAsync() > 0;
+            try
+            {
+                return await _context.SaveChangesAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation(ex.Message, ex);
+                return false;
+            }
         }
 
         public async Task<bool> TaskExistsAsync(int peopleId, int projectId, int taskId)
         {
-            var data = await _context.Tbl_Task
-                 .Join(
-                    _context.Tbl_Project,
-                    task => task.ProjectId,
-                    project => project.Id,
-                    (task, project) => new { Task = task, Project = project })
-                .Join(
-                    _context.Tbl_UserTask,
-                    taskProject => taskProject.Task.Id,
-                    userTask => userTask.TaskId,
-                    (taskProject, userTask) => new { taskProject.Task, taskProject.Project, UserTask = userTask })
-                .Join(
-                    _context.Tbl_People,
-                    taskProjectUserTask => taskProjectUserTask.UserTask.UserId,
-                    people => people.Id,
-                    (taskProjectUserTask, people) => new { taskProjectUserTask.Task, taskProjectUserTask.Project, taskProjectUserTask.UserTask, People = people })
-                .FirstOrDefaultAsync(joined => joined.People.Id == peopleId && joined.Project.Id == projectId && joined.Task.Id == taskId);
-            if (data is null)
-                return false;
-            return true;
+            var taskInfo = await _context.Tbl_Task
+               //.Include(u => u.UserTasks)
+               //.Include(p => p.Project)
+               //.ThenInclude(o => o.Owner)
+               .Where(o => o.Project.OwnerId == peopleId)
+               .Where(p => p.ProjectId == projectId)
+               .AnyAsync(u => u.Id == taskId);
+
+            return taskInfo;
         }
 
+        public async void UpdateProperty(int id, Expression<Func<Tasks, string>> propertyExpression, string newValue)
+        {
+            var entity = _context.Tbl_Task.Find(id);
+
+            if (entity != null)
+            {
+                var memberExpression = (MemberExpression)propertyExpression.Body;
+                var propertyInfo = (PropertyInfo)memberExpression.Member;
+
+                propertyInfo.SetValue(entity, newValue);
+
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

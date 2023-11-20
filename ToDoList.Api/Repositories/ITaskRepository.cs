@@ -1,4 +1,5 @@
-﻿using ToDoList.Api.Data.Entities;
+﻿using System.Linq.Expressions;
+using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.Infos;
 
 namespace ToDoList.Api.Repositories
@@ -13,6 +14,8 @@ namespace ToDoList.Api.Repositories
         public Task<bool> TaskExistsAsync(int peopleId, int projectId, int taskId);
         public void DeleteTaskAsync(Tasks tasks);
 
+
+        public void UpdateProperty(int id, Expression<Func<Tasks, string>> propertyExpression, string newValue);
 
         public Task<bool> SaveChangesAsync();
     }

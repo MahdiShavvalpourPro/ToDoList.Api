@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
-using Azure;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Storage;
-using ToDoList.Api.Data;
+using System.Xml.XPath;
 using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.Infos;
 using ToDoList.Api.Models.Project;
@@ -31,11 +29,11 @@ namespace ToDoList.Api.Controllers
             IPeopleRepository peopleRepository
             )
         {
-            _taskRepository = taskRepository;
-            _logger = logger;
-            _mapper = mapper;
-            _projectRepository = projectRepository;
-            _peopleRepository = peopleRepository;
+            _taskRepository = taskRepository ?? throw new ArgumentNullException(nameof(taskRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(_projectRepository));
+            _peopleRepository = peopleRepository ?? throw new ArgumentNullException(nameof(peopleRepository));
         }
 
 
@@ -123,71 +121,6 @@ namespace ToDoList.Api.Controllers
 
         #endregion
 
-        #region Delete
-
-        [HttpDelete]
-        public async Task<ActionResult> HardDelete(int peopleId, int projectId, int taskId)
-        {
-            if (!await _taskRepository.TaskExistsAsync(peopleId, projectId, taskId))
-                return NotFound();
-
-            var task = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
-
-            _taskRepository.DeleteTaskAsync(task);
-            if (await _taskRepository.SaveChangesAsync())
-            {
-                return Ok();
-            }
-            _logger.LogInformation($"{nameof(HardDelete)}: {task}");
-            return BadRequest();
-        }
-
-        [HttpPatch("{taskId}")]
-        public async Task<ActionResult> SoftDelete
-            (
-            JsonPatchDocument<TaskForDeleteDto> document,
-            int peopleId,
-            int projectId,
-            int taskId)
-        {
-            if (!await _peopleRepository.PeopleExistsAsync(peopleId))
-            {
-                _logger.LogInformation($"people With Id {peopleId} Not Found");
-                return NotFound();
-            }
-
-            if (!await _projectRepository.ProjectExistsAsync(peopleId, projectId))
-            {
-                _logger.LogInformation($"people with project Id {projectId} not found");
-                return NotFound();
-            }
-
-            if (!await _taskRepository.TaskExistsAsync(peopleId, projectId, taskId))
-            {
-                _logger.LogInformation($"Task With Id {taskId} Not Found");
-                return NotFound();
-            }
-
-            var taskToPatch = _mapper.Map<TaskForDeleteDto>(document);
-            document.ApplyTo(taskToPatch, ModelState);
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            if (!TryValidateModel(taskToPatch))
-            {
-                return BadRequest(ModelState);
-            }
-
-            _mapper.Map<TasksDto>(document);
-            await _taskRepository.SaveChangesAsync();
-            return Ok();
-
-
-        }
-
-        #endregion
-
         #region Update Tasks
 
         [HttpPatch("taskId")]
@@ -195,26 +128,23 @@ namespace ToDoList.Api.Controllers
             int peopleId,
             int projectId,
             int taskId,
-            Microsoft.AspNetCore.JsonPatch.JsonPatchDocument<TaskForUpdateDto> document
+            JsonPatchDocument<TaskForUpdateDto> document
             )
         {
-            #region validation
-
             if (!ModelState.IsValid)
                 return BadRequest();
 
             if (!await _peopleRepository.PeopleExistsAsync(peopleId))
                 return NotFound(ModelState);
 
-            if (await _projectRepository.ProjectExistsAsync(projectId, taskId))
+            if (!await _projectRepository.ProjectExistsAsync(peopleId, projectId))
                 return NotFound(ModelState);
 
-            var task =await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
-            if (task == null)
+            var getTask = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
+            if (getTask == null)
                 return NotFound(ModelState);
 
-            #endregion
-            var taskToPatch = _mapper.Map<TaskForUpdateDto>(task);
+            var taskToPatch = _mapper.Map<TaskForUpdateDto>(getTask);
             document.ApplyTo(taskToPatch, ModelState);
             if (!ModelState.IsValid)
             {
@@ -224,14 +154,14 @@ namespace ToDoList.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            task.ModificationDate = DateTime.Now;
-            _mapper.Map(taskToPatch,task);
-            if(await _taskRepository.SaveChangesAsync())
+            getTask.ModificationDate = DateTime.Now;
+            _mapper.Map(taskToPatch, getTask);
+            if (await _taskRepository.SaveChangesAsync())
             {
-                var reMap=_mapper.Map<TaskForUpdateDto>(task);
+                var reMap = _mapper.Map<TaskForUpdateDto>(getTask);
                 return Ok(reMap);
             }
-            _logger.LogInformation($"Error When Updating Task: {task}");
+            _logger.LogInformation($"Error When Updating project: {getTask}");
             return BadRequest(ModelState);
         }
 
