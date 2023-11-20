@@ -73,6 +73,19 @@ namespace ToDoList.Api.Profiler
             CreateMap<Tasks, TaskForUpdateDto>();
             CreateMap<TaskForUpdateDto, Tasks>();
 
+            CreateMap<Tasks, TaskInfos>()
+                .ForMember(dest=>dest.FirstName,opt=>opt.MapFrom(src=>src.Project.Owner.FirstName))
+                .ForMember(dest=>dest.LastName,opt=>opt.MapFrom(src=>src.Project.Owner.LastName))
+                .ForMember(dest=>dest.MobileNumber,opt=>opt.MapFrom(src=>src.Project.Owner.MobileNumber))
+                .ForMember(dest=>dest.PersianDate,opt=>opt.MapFrom(src=>src.Project.Owner.PersianDate))
+                .ForMember(dest=>dest.ProjectName,opt=>opt.MapFrom(src=>src.Project.Name))
+                .ForMember(dest=>dest.ProjectStatus,opt=>opt.MapFrom(src=>src.Project.ProjectStatus))
+                .ForMember(dest=>dest.ProjectPriorityLevel,opt=>opt.MapFrom(src=>src.Project.PriorityLevel))
+                .ForMember(dest=>dest.TaskStatus,opt=>opt.MapFrom(src=>src.TaskStatus))
+                .ForMember(dest=>dest.TaskPriorityLevel,opt=>opt.MapFrom(src=>src.PriorityLevel))
+                .ForMember(dest=>dest.TaskName,opt=>opt.MapFrom(src=>src.Name))
+                ;
+
             #endregion
 
         }

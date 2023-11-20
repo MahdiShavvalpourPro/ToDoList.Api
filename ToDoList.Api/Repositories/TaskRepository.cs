@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,17 +15,46 @@ namespace ToDoList.Api.Repositories
         private readonly ApplicationDbContext _context;
         private readonly ILogger<TaskRepository> _logger;
         private readonly IUserTasksRepository _userTasksRepository;
+        private readonly IMapper _mapper;
 
         public TaskRepository(
             ApplicationDbContext context,
             ILogger<TaskRepository> logger,
-            IUserTasksRepository userTasksRepository
+            IUserTasksRepository userTasksRepository,
+            IMapper mapper
             )
         {
             _context = context;
             _logger = logger;
             _userTasksRepository = userTasksRepository;
+            _mapper = mapper;
         }
+
+        public async void CheckExpiredTasks(List<Tasks> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                if (task.ExpireTime < DateTime.Now)
+                {
+                    task.TaskStatus = Status.Canceled;
+                }
+            }
+            await SaveChangesAsync();
+        }
+
+        public async Task<bool> CheckStatusTasks(int ownerId, int projectId)
+        {
+            var tasks = await GetAllTaskInfosAsync(ownerId, projectId);
+            foreach (var task in tasks)
+            {
+                if (task.TaskStatus != Status.Done)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void DeleteTaskAsync(Tasks tasks)
         {
             try
@@ -37,41 +67,21 @@ namespace ToDoList.Api.Repositories
             }
         }
 
-        public async Task<IEnumerable<TaskInfos>> GetAllTaskInfosAsync(int peopleId, int projectId)
+        public async Task<List<TaskInfos>> GetAllTaskInfosAsync(int peopleId, int projectId)
         {
-            return await _context.Tbl_Task
-                  .Join(
-                     _context.Tbl_Project,
-                     task => task.ProjectId,
-                     project => project.Id,
-                     (task, project) => new { Task = task, Project = project })
-                 .Join(
-                     _context.Tbl_UserTask,
-                     taskProject => taskProject.Task.Id,
-                     userTask => userTask.TaskId,
-                     (taskProject, userTask) => new { taskProject.Task, taskProject.Project, UserTask = userTask })
-                 .Join(
-                     _context.Tbl_People,
-                     taskProjectUserTask => taskProjectUserTask.UserTask.UserId,
-                     people => people.Id,
-                     (taskProjectUserTask, people) => new { taskProjectUserTask.Task, taskProjectUserTask.Project, taskProjectUserTask.UserTask, People = people })
-                 .Where(joined => joined.People.Id == peopleId && joined.Project.Id == projectId)
-                 .Select(x => new TaskInfos
-                 {
-                     FirstName = x.People.FirstName,
-                     LastName = x.People.LastName,
-                     MobileNumber = x.People.MobileNumber,
-                     PersianDate = x.People.PersianDate,
-                     ProjectName = x.Project.Name,
-                     ProjectStatus = x.Project.ProjectStatus,
-                     ProjectPriorityLevel = x.Project.PriorityLevel,
-                     TaskName = x.Task.Name,
-                     TaskStatus = x.Task.TaskStatus,
-                     TaskPriorityLevel = x.Task.PriorityLevel,
-                     StartTime = x.Task.StartTime,
-                     ExpireTime = x.Task.ExpireTime
-                 })
-                 .ToListAsync();
+            var tasks = await _context.Tbl_Task
+               .Include(u => u.UserTasks)
+               .Include(p => p.Project)
+               .ThenInclude(o => o.Owner)
+               .Where(t=>t.TaskStatus != Status.Canceled)
+               .Where(o => o.Project.OwnerId == peopleId)
+               .Where(p => p.ProjectId == projectId)
+               .ToListAsync();
+
+            CheckExpiredTasks(tasks);
+
+            var taskInfos = _mapper.Map<List<TaskInfos>>(tasks);
+            return taskInfos;
         }
 
         public async Task<Tasks> GetTaskAsync(int peopleId, int projectId, int taskId)
@@ -86,7 +96,6 @@ namespace ToDoList.Api.Repositories
 
             return taskInfo;
         }
-
         public async Task<TaskInfos> GetTaskInfoAsync(int peopleId, int projectId, int taskId)
         {
             var taskInfo = await _context.Tbl_Task

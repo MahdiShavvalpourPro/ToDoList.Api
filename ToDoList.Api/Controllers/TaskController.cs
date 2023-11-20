@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Hangfire;
+using Hangfire.Common;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using System.Xml.XPath;
+using Microsoft.VisualBasic;
 using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.Infos;
 using ToDoList.Api.Models.Project;
@@ -137,7 +139,8 @@ namespace ToDoList.Api.Controllers
             if (!await _peopleRepository.PeopleExistsAsync(peopleId))
                 return NotFound(ModelState);
 
-            if (!await _projectRepository.ProjectExistsAsync(peopleId, projectId))
+            var project = await _projectRepository.GetProjectAsync(peopleId, projectId);
+            if (project is null)
                 return NotFound(ModelState);
 
             var getTask = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
@@ -159,6 +162,7 @@ namespace ToDoList.Api.Controllers
             if (await _taskRepository.SaveChangesAsync())
             {
                 var reMap = _mapper.Map<TaskForUpdateDto>(getTask);
+                _projectRepository.ChangeProjectStatus(project, Status.Done);
                 return Ok(reMap);
             }
             _logger.LogInformation($"Error When Updating project: {getTask}");

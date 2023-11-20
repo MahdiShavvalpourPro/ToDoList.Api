@@ -11,7 +11,7 @@ namespace ToDoList.Api.Controllers
     [ApiController]
     [Route("api/people/{peopleId}/projects/[action]")]
     public class ProjectController : ControllerBase
-    {
+    {   
         private readonly ILogger<ProjectController> _logger;
         private readonly IMapper _mapper;
         private readonly IPeopleRepository _peopleReposit;

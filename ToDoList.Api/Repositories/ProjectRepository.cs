@@ -9,18 +9,29 @@ namespace ToDoList.Api.Repositories
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ProjectRepository> _logger;
         private readonly IPeopleRepository _peopleRepository;
+        private readonly ITaskRepository _taskRepo;
 
-        public ProjectRepository(ApplicationDbContext context, ILogger<ProjectRepository> logger, IPeopleRepository projectRepository)
+        public ProjectRepository(ApplicationDbContext context, ILogger<ProjectRepository> logger, IPeopleRepository projectRepository, ITaskRepository taskRepo)
         {
             _context = context;
             _logger = logger;
             _peopleRepository = projectRepository;
+            _taskRepo = taskRepo;
         }
         public async Task AddProjectAsync(int peopleId, Projects project)
         {
             if (await _peopleRepository.PeopleExistsAsync(peopleId))
             {
                 await _context.AddAsync(project);
+            }
+        }
+
+        public async void ChangeProjectStatus(Projects project, Status status)
+        {
+            if (await _taskRepo.CheckStatusTasks(project.OwnerId, project.Id))
+            {
+                project!.ProjectStatus = status;
+                await SaveChangesAsync();
             }
         }
 

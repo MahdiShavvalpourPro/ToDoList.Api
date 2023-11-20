@@ -15,6 +15,8 @@ namespace ToDoList.Api.Repositories
         //public Task<bool> PeopleExistsAsync(int peopleId);
         public Task<bool> ProjectExistsAsync(int peopleId, int projectId);
 
+        public void ChangeProjectStatus(Projects project, Status status);
+
 
         public Task<bool> SaveChangesAsync();
     }
