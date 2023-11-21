@@ -9,17 +9,12 @@ namespace ToDoList.Api.Data.Config
         public void Configure(EntityTypeBuilder<UserTasks> builder)
         {
             builder.HasOne(e => e.People)
-                .WithMany(e => e.UserTasks)
-                .HasForeignKey(e => e.UserId);
-
+               .WithMany(e => e.UserTasks)
+               .HasForeignKey(e => e.UserId);
 
             builder.HasOne(e => e.Task)
                 .WithMany(e => e.UserTasks)
                 .HasForeignKey(e => e.TaskId);
-
-
-
-
         }
     }
 }

@@ -61,9 +61,7 @@ namespace ToDoList.Api.Controllers
         public async Task<ActionResult> AddPeople(PeopleForCreationDto peopleDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
-
-
+                return BadRequest(ModelState);
 
             var people = _mapper.Map<People>(peopleDto);
             await _peopleReposit.AddPeopleAsync(people);

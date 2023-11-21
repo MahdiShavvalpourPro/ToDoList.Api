@@ -12,14 +12,9 @@ namespace ToDoList.Api.Data.Config
             builder.Property(p => p.Name).HasMaxLength(300).IsRequired();
             builder.Property(p => p.Description).HasMaxLength(400).IsRequired();
 
-
-
             builder.HasOne(e => e.Project)
                             .WithMany(e => e.TasksList)
                             .HasForeignKey(e => e.ProjectId);
-
-
-            
         }
     }
 }

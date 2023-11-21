@@ -7,7 +7,8 @@ using ToDoList.Api.Repositories;
 using ToDoList.Api.Validations.TaskValidation;
 using ToDoList.Api.Models.Task;
 using Hangfire;
-using ToDoList.Api.Validations;
+using ToDoList.Api.Models.People;
+using ToDoList.Api.Validations.PeopleValidation;
 
 #region SerilogForLog
 
@@ -31,8 +32,10 @@ builder.Services.AddControllers()
 
 
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddScoped<IValidator<TaskForCreationDto>, TaskValidation>();
+builder.Services.AddScoped<IValidator<TaskForCreationDto>, TaskForCreationDtoValidation>();
 builder.Services.AddScoped<IValidator<TaskForUpdateDto>, TaskForUpdateDtoValidation>();
+
+builder.Services.AddScoped<IValidator<PeopleForCreationDto>, PeopleForCreationDtoValidation>();
 
 #endregion
 

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using ToDoList.Api.Models.Task;
 
-namespace ToDoList.Api.Validations
+namespace ToDoList.Api.Validations.TaskValidation
 {
     public class TaskForUpdateDtoValidation : AbstractValidator<TaskForUpdateDto>
     {

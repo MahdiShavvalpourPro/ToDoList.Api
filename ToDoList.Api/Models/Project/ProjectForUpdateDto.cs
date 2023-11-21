@@ -16,5 +16,6 @@ namespace ToDoList.Api.Models.Project
 
         [MaxLength(400)]
         public string? Descrption { get; set; } = null;
+        public bool IsRemove { get; set; }
     }
 }

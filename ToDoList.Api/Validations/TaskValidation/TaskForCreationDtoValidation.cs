@@ -3,9 +3,9 @@ using ToDoList.Api.Models.Task;
 
 namespace ToDoList.Api.Validations.TaskValidation
 {
-    public class TaskValidation : AbstractValidator<TaskForCreationDto>
+    public class TaskForCreationDtoValidation : AbstractValidator<TaskForCreationDto>
     {
-        public TaskValidation()
+        public TaskForCreationDtoValidation()
         {
             RuleFor(x => x.Name)
                 .NotNull()
@@ -18,12 +18,12 @@ namespace ToDoList.Api.Validations.TaskValidation
             RuleFor(x => x.PriorityLevel)
                 .IsInEnum();
 
-            //RuleFor(x => x.StartTime)
-            //   .NotEmpty();
+            RuleFor(x => x.StartTime)
+               .NotEmpty();
 
-            //RuleFor(x => x.ExpireDate)
-            //    .NotEmpty()
-            //    .GreaterThan(x => x.StartTime);
+            RuleFor(x => x.ExpireTime)
+                .NotEmpty()
+                .GreaterThan(x => x.StartTime);
 
             RuleFor(task => task.Description)
                .MaximumLength(300)

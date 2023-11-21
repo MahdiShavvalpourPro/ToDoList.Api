@@ -6,8 +6,6 @@
         public string LastName { get; set; }
         public string MobileNumber { get; set; }
         public string? Email { get; set; } = null;
-        public int TaskId { get; set; }
-        public Tasks Task { get; set; }
 
         //Relations
         public ICollection<Projects> ProjectsList { get; set; } = new List<Projects>();
