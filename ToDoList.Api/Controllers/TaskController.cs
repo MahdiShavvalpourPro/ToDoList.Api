@@ -3,6 +3,7 @@ using Hangfire;
 using Hangfire.Common;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.Infos;
@@ -167,6 +168,25 @@ namespace ToDoList.Api.Controllers
             }
             _logger.LogInformation($"Error When Updating project: {getTask}");
             return BadRequest(ModelState);
+        }
+
+        #endregion
+
+        #region Delete Task
+
+        [HttpDelete("{taskId}")]
+        public async Task<ActionResult> DeleteTask(int peopleId, int projectId, int taskId)
+        {
+            var task = await _taskRepository.GetTaskAsync(peopleId, projectId, taskId);
+            if (task is null)
+                return BadRequest(ModelState);
+
+            _taskRepository.DeleteTaskAsync(task);
+            if (!await _taskRepository.SaveChangesAsync())
+                return BadRequest(ModelState);
+
+            return Ok("One Task Delete Successfully");
+
         }
 
         #endregion

@@ -37,8 +37,8 @@ namespace ToDoList.Api.Controllers
             var peopleData = await _peopleReposit.GetPeopleByIdAsync(peopleId, includeProjects, includeTasks);
 
             //Get People With tasks list and project list
-            //if (includeTasks && includeProjects)
-            //    return Ok(_mapper.Map<PeopleDto>(peopleData));
+            if (includeTasks && includeProjects)
+                return Ok(_mapper.Map<PeopleWithIncludeProjectAndTaskDto>(peopleData));
 
             //Get People With Project List
             if (includeProjects)

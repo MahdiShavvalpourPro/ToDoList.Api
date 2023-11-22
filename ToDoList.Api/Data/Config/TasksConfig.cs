@@ -15,6 +15,10 @@ namespace ToDoList.Api.Data.Config
             builder.HasOne(e => e.Project)
                             .WithMany(e => e.TasksList)
                             .HasForeignKey(e => e.ProjectId);
+
+            builder.HasOne(e => e.Owner)
+                .WithMany(e => e.TasksList)
+                .HasForeignKey(x => x.OwnerId);
         }
     }
 }

@@ -48,14 +48,22 @@ namespace ToDoList.Api.Repositories
 
         public async Task<People?> GetPeopleByIdAsync(int peopleId, bool includeProjects = false, bool includeTasks = false)
         {
-            //if (includeProjects && includeTasks)
-            //{
-            //    return await _context
-            //        .Tbl_People
-            //        .Include(p => p.UserTasks)
-            //        .Include(p => p.ProjectsList)
-            //        .FirstOrDefaultAsync(c => c.Id == peopleId);
-            //}
+            if (includeProjects && includeTasks)
+            {
+                var people = await _context.Tbl_People
+                    .Where(p => p.Id == peopleId && p.IsRemove != true)
+                    .Select(p => new
+                    {
+                        Owner = p,
+                        Projects = p.ProjectsList.Select(proj => new
+                        {
+                            Project = proj,
+                            Tasks = proj.TasksList.Select(task => task.UserTasks)
+                        })
+                    })
+                    .FirstOrDefaultAsync();
+
+            }
             if (includeProjects)
             {
                 return await _context
@@ -68,6 +76,7 @@ namespace ToDoList.Api.Repositories
                 var data = await _context
                      .Tbl_People
                      .Include(p => p.UserTasks)
+                     .ThenInclude(t => t.Task)
                      .FirstOrDefaultAsync(p => p.Id == peopleId);
                 return data;
             }

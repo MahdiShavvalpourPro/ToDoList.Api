@@ -108,6 +108,7 @@ namespace ToDoList.Api.Data
                     ExpireTime = DateTime.Now.AddDays(2),
                     Description = "به چه علتی چنین رویکردی ایجاد شده است ؟؟",
                     ProjectId = 1,
+                    OwnerId = 1
                 },
                 new Tasks()
                 {
@@ -119,6 +120,7 @@ namespace ToDoList.Api.Data
                     ExpireTime = DateTime.Now.AddDays(3),
                     Description = "",
                     ProjectId = 2,
+                    OwnerId = 3
                 },
                 new Tasks()
                 {
@@ -130,6 +132,7 @@ namespace ToDoList.Api.Data
                     ExpireTime = DateTime.Now.AddHours(9),
                     Description = "روزانه باید این کتاب خوانده شود . باید",
                     ProjectId = 4,
+                    OwnerId = 4
                 },
                 new Tasks()
                 {
@@ -141,6 +144,7 @@ namespace ToDoList.Api.Data
                     ExpireTime = DateTime.Now.AddDays(2),
                     Description = "This Is a Test Tasks",
                     ProjectId = 4,
+                    OwnerId = 4
                 }
                 );
 

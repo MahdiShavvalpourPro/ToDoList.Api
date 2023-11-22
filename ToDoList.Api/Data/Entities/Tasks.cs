@@ -13,6 +13,8 @@
         //Relations
         public Projects Project { get; set; }
         public int ProjectId { get; set; }
+        public People Owner { get; set; }
+        public int OwnerId { get; set; }
 
         public ICollection<UserTasks> UserTasks { get; set; }
     }

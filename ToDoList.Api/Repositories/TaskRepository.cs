@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 using ToDoList.Api.Data;
 using ToDoList.Api.Data.Entities;
 using ToDoList.Api.Models.Infos;

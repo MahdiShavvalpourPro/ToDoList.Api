@@ -10,5 +10,6 @@
         //Relations
         public ICollection<Projects> ProjectsList { get; set; } = new List<Projects>();
         public ICollection<UserTasks> UserTasks { get; set; } = new List<UserTasks>();
+        public ICollection<Tasks> TasksList { get; set; } = new List<Tasks>();
     }
 }

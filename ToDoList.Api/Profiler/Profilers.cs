@@ -39,6 +39,8 @@ namespace ToDoList.Api.Profiler
             CreateMap<People, PeopleForDeleteDto>();
             CreateMap<PeopleForDeleteDto, People>();
 
+            CreateMap<People,PeopleWithIncludeProjectAndTaskDto>();
+
             #endregion
 
 
